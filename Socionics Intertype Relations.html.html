@@ -1,0 +1,120 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Socionics Intertype Relations</title>
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500&family=IBM+Plex+Sans+Arabic:wght@400;500&display=swap" rel="stylesheet">
+<style>
+:root{--navy:#0B2A5B;--mid:#16407F;--sky:#E3F1FB;--sky2:#CFE6F6;--bg:#F6FAFE;color-scheme:light;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
+html{scroll-padding-top:env(safe-area-inset-top,0px)}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--navy);font-family:"IBM Plex Sans","IBM Plex Sans Arabic",system-ui,sans-serif;line-height:1.6;font-size:15px}
+main{max-width:760px;margin:0 auto;padding:20px 14px 40px}
+h1{font-size:24px;font-weight:500;margin:0 0 6px}
+h2{font-size:18px;font-weight:500;margin:28px 0 10px}
+p{margin:0 0 10px}
+.ar{direction:rtl;unicode-bidi:isolate;font-family:"IBM Plex Sans Arabic","IBM Plex Sans",sans-serif}
+.lead{color:var(--mid)}
+select{width:100%;font:inherit;padding:10px 12px;border:1.5px solid var(--navy);border-radius:8px;background:#fff;color:var(--navy)}
+.list{margin-top:10px;border-radius:10px;overflow:hidden}
+.item{display:flex;justify-content:space-between;gap:10px;align-items:center;padding:9px 12px}
+.item:nth-child(odd){background:var(--sky)}
+.item:nth-child(even){background:var(--sky2)}
+.item .t{font-weight:500}
+.item .r{text-align:right;font-size:14px}
+.scroll{overflow-x:auto;border-radius:10px}
+table{border-collapse:collapse;font-size:12px;text-align:center;min-width:680px;width:100%}
+th{background:var(--navy);color:#fff;font-weight:500;padding:7px 4px}
+th.row{position:sticky;left:0}
+td{padding:7px 4px}
+tr:nth-child(odd) td{background:var(--sky)}
+tr:nth-child(even) td{background:var(--sky2)}
+td.idn{background:var(--navy)!important;color:#fff}
+td.dlt{background:var(--mid)!important;color:#fff;font-weight:500}
+.legend{display:grid;grid-template-columns:repeat(auto-fit,minmax(250px,1fr));gap:6px}
+.leg{padding:8px 10px;border-radius:8px;font-size:14px}
+.leg:nth-child(odd){background:var(--sky)}
+.leg:nth-child(even){background:var(--sky2)}
+.note{background:var(--navy);color:#fff;border-radius:10px;padding:12px 14px;font-size:14px;margin-top:24px}
+:focus-visible{outline:3px solid var(--mid);outline-offset:2px}
+</style>
+</head>
+<body>
+<main>
+<h1>Socionics Intertype Relations <span class="ar">(العلاقات بين الأنواع)</span></h1>
+<p class="lead">All 16 types and how each one relates to every other type. Types are written in MBTI names.</p>
+
+<h2>Pick a type <span class="ar">(اختر نوعك)</span></h2>
+<select id="sel" aria-label="Pick a type"></select>
+<div class="list" id="list"></div>
+
+<h2>Full chart <span class="ar">(الجدول الشامل)</span></h2>
+<p>Read it as: row type (A) → column type (B). Swipe sideways to see all columns.</p>
+<div class="scroll"><table id="tbl"></table></div>
+
+<h2>Key <span class="ar">(المفتاح)</span></h2>
+<div class="legend" id="leg"></div>
+
+<div class="note">
+MBTI and Socionics use different J/P letters for introverts, so the chart converts them: for example, Socionics INFj is INFP in MBTI. Source: the relationship chart on socionics.com. Socionics is not scientifically validated, so use it for reflection, not as a verdict.
+</div>
+</main>
+<script>
+var N=["ENTP","ISFJ","ESFJ","INTP","ENFJ","ISTP","ESTP","INFJ","ESFP","INTJ","ENTJ","ISFP","ESTJ","INFP","ENFP","ISTJ"];
+var R=[
+"Idn Dlt Act Mrr Bn> Sp> Lkl Ill Ego Cnt Qid Cnf Bn< Sp< Cmp Sdl",
+"Dlt Idn Mrr Act Sp> Bn> Ill Lkl Cnt Ego Cnf Qid Sp< Bn< Sdl Cmp",
+"Act Mrr Idn Dlt Cmp Sdl Bn< Sp< Qid Cnf Ego Cnt Lkl Ill Bn> Sp>",
+"Mrr Act Dlt Idn Sdl Cmp Sp< Bn< Cnf Qid Cnt Ego Ill Lkl Sp> Bn>",
+"Bn< Sp< Cmp Sdl Idn Dlt Act Mrr Bn> Sp> Lkl Ill Ego Cnt Qid Cnf",
+"Sp< Bn< Sdl Cmp Dlt Idn Mrr Act Sp> Bn> Ill Lkl Cnt Ego Cnf Qid",
+"Lkl Ill Bn> Sp> Act Mrr Idn Dlt Cmp Sdl Bn< Sp< Qid Cnf Ego Cnt",
+"Ill Lkl Sp> Bn> Mrr Act Dlt Idn Sdl Cmp Sp< Bn< Cnf Qid Cnt Ego",
+"Ego Cnt Qid Cnf Bn< Sp< Cmp Sdl Idn Dlt Act Mrr Bn> Sp> Lkl Ill",
+"Cnt Ego Cnf Qid Sp< Bn< Sdl Cmp Dlt Idn Mrr Act Sp> Bn> Ill Lkl",
+"Qid Cnf Ego Cnt Lkl Ill Bn> Sp> Act Mrr Idn Dlt Cmp Sdl Bn< Sp<",
+"Cnf Qid Cnt Ego Ill Lkl Sp> Bn> Mrr Act Dlt Idn Sdl Cmp Sp< Bn<",
+"Bn> Sp> Lkl Ill Ego Cnt Qid Cnf Bn< Sp< Cmp Sdl Idn Dlt Act Mrr",
+"Sp> Bn> Ill Lkl Cnt Ego Cnf Qid Sp< Bn< Sdl Cmp Dlt Idn Mrr Act",
+"Cmp Sdl Bn< Sp< Qid Cnf Ego Cnt Lkl Ill Bn> Sp> Act Mrr Idn Dlt",
+"Sdl Cmp Sp< Bn< Cnf Qid Cnt Ego Ill Lkl Sp> Bn> Mrr Act Dlt Idn"].map(function(r){return r.split(" ")});
+var T={
+Idn:["Identical","نفس النوع"],Dlt:["Duality","الثنائي، يكمّلك"],Act:["Activity","النشاط، طاقة متبادلة"],
+Mrr:["Mirror","المرآة، نقاش وتصحيح"],Cmp:["Comparative (Kindred)","القريب"],Sdl:["Semi-duality","شبه الثنائي"],
+Lkl:["Look-alike","المتشابه"],Ill:["Illusionary (Mirage)","السراب"],Qid:["Quasi-identical","شبه المطابق"],
+Cnt:["Contrary","التضاد"],Ego:["Super-ego","الأنا العليا"],Cnf:["Conflict","الصراع"],
+"Bn>":["Benefactor","المعطي في علاقة المنفعة"],"Bn<":["Beneficiary","المستفيد في علاقة المنفعة"],
+"Sp>":["Supervisor","المشرف عليه"],"Sp<":["Supervisee","المشرف هو الطرف الثاني"]};
+var D={
+"Bn>":["Benefactor","أنت المعطي"],"Bn<":["Beneficiary","أنت المستفيد"],
+"Sp>":["Supervisor","أنت المشرف"],"Sp<":["Supervisee","هو المشرف عليك"]};
+function lab(c){var t=D[c]||T[c];return D[c]?t:t}
+var s=document.getElementById("sel");
+N.forEach(function(n,i){var o=document.createElement("option");o.value=i;o.textContent=n;s.appendChild(o)});
+function show(){
+ var i=+s.value,h="";
+ R[i].forEach(function(c,j){
+  if(j===i)return;
+  var t=D[c]||T[c];
+  h+='<div class="item"><span class="t">'+N[j]+'</span><span class="r">'+t[0]+' <span class="ar">('+t[1]+')</span></span></div>';
+ });
+ document.getElementById("list").innerHTML=h;
+}
+s.onchange=show;show();
+var h='<tr><th></th>'+N.map(function(n){return"<th>"+n+"</th>"}).join("")+"</tr>";
+R.forEach(function(r,i){
+ h+='<tr><th class="row">'+N[i]+"</th>"+r.map(function(c){
+  var k=c==="Idn"?' class="idn"':c==="Dlt"?' class="dlt"':"";
+  return"<td"+k+">"+c+"</td>"}).join("")+"</tr>";
+});
+document.getElementById("tbl").innerHTML=h;
+var L=["Idn","Dlt","Act","Mrr","Cmp","Sdl","Lkl","Ill","Qid","Cnt","Ego","Cnf","Bn>","Bn<","Sp>","Sp<"];
+var X={"Bn>":["Benefactor","الصف هو المعطي"],"Bn<":["Beneficiary","الصف هو المستفيد"],"Sp>":["Supervisor","الصف هو المشرف"],"Sp<":["Supervisee","الصف هو المشرف عليه"]};
+document.getElementById("leg").innerHTML=L.map(function(c){
+ var t=X[c]||T[c];
+ return'<div class="leg"><b style="font-weight:500">'+c+'</b> '+t[0]+' <span class="ar">('+t[1]+')</span></div>';
+}).join("");
+</script>
+</body>
+</html>
